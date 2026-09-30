@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# 提取产物（绝不要提交，这是版权素材）
+cg_out/
+out/
+*_out/
+inventory.csv
+manifest.json
+export.log
+*.png
+*.mp4
+*.jpg
+*.wav
+*.ogg
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
