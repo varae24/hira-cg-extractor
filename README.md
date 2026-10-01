@@ -14,6 +14,9 @@ offline-browsable gallery.
 It started as a way to back up the CGs of *Hira Hira Hihiru*; the game-specific
 hardcoding was later removed, so it now works with most Unity titles.
 
+**New to this?** Jump straight to [Getting Started](#getting-started) — it walks
+you through every step, assuming you have never run a Python script before.
+
 ---
 
 ## What it does
@@ -32,46 +35,170 @@ hardcoding was later removed, so it now works with most Unity titles.
 - Audio extraction is not implemented
 - It does not composite layered character sprites back into a single image
 
-## Requirements
+---
 
-- Python 3.8+
-- Dependencies: `UnityPy`, `Pillow`
+## Getting Started
 
-```bash
-pip install -r requirements.txt
-```
+This section assumes Windows and that you have never used a terminal before.
+If you already know your way around, skip to [Options reference](#options-reference).
 
-## Usage
+### What you need
 
-The common case — point it at the game folder and let it find `_Data` itself:
+| | |
+|---|---|
+| The game | Installed and **closed** when you run the tool |
+| Python | 3.8 or newer |
+| About 2 minutes | The extraction itself takes roughly that long |
+| ~1 GB free disk | For the output |
 
-```bash
-python hira_cg.py --game-dir "D:\Steam\steamapps\common\Hira Hira Hihiru" --out-dir ./cg_out
-```
+---
 
-Dry run first to see what it would export without writing anything:
+### Step 0 — Check that Python is installed
 
-```bash
-python hira_cg.py --game-dir "D:\...\Hira Hira Hihiru" --dry-run
-```
-
-More examples:
+Open a terminal and run:
 
 ```bash
-# Skip auto-detection and give the _Data directory directly
-python hira_cg.py --data-dir "D:\...\Hira Hira Hihiru_Data" --out-dir ./cg_out
-
-# Textures only, no video
-python hira_cg.py --game-dir <game dir> --no-video
-
-# Use a game-specific naming profile
-python hira_cg.py --game-dir <game dir> --profile hihiru
-
-# PNGs without the gallery page
-python hira_cg.py --game-dir <game dir> --no-gallery
+python --version
 ```
 
-Full options:
+If you see something like `Python 3.13.14`, you're good — move on.
+
+**If it says `'python' is not recognized`:**
+
+1. Go to <https://www.python.org/downloads/>
+2. Click the big yellow **Download Python 3** button
+3. Run the installer
+4. ⚠️ **On the very first screen, tick the box that says "Add python.exe to PATH"**
+   before clicking *Install now*. This is easy to miss and everything breaks
+   without it.
+5. Open a **new** terminal window (the old one won't see the new PATH) and check
+   again
+
+> Some Windows setups only provide a launcher called `py` instead of `python`.
+> If `python` fails, try `py --version` and use `py` in all the commands below.
+
+---
+
+### Step 1 — Get the code
+
+On the GitHub page of this repository:
+
+1. Click the green **`< > Code`** button (top right, above the file list)
+2. Click **Download ZIP**
+
+Unzip it. You now have a folder named `hira-cg-extractor-main`.
+
+> Rename it to just `hira-cg-extractor` if you like — it makes the commands below
+> shorter. Not required.
+
+---
+
+### Step 2 — Open a terminal inside that folder
+
+This is the step beginners get stuck on. You need the terminal to be *pointing
+at* the project folder.
+
+**Easiest way:** open File Explorer, navigate into `hira-cg-extractor-main`,
+then **right-click on an empty area**. If you see **"Open in Terminal"** (or
+"Open in PowerShell"), click it.
+
+**Alternative:** open Terminal / PowerShell / Command Prompt from the Start menu,
+then type:
+
+```bash
+cd C:\Users\YourName\Downloads\hira-cg-extractor-main
+```
+
+(Adjust the path. `cd` just means "change directory".)
+
+You'll know it worked if the prompt now ends with the folder name.
+
+---
+
+### Step 3 — Install the dependencies
+
+```bash
+python -m venv venv
+venv\Scripts\pip install -r requirements.txt
+```
+
+This downloads UnityPy and Pillow. Takes about a minute.
+
+**What is a `venv`?** A "virtual environment" is just a private folder holding
+this project's own copy of its dependencies. It keeps them from tangled up with
+other Python projects on your machine, and deleting the folder uninstalls
+everything cleanly — no leftovers.
+
+> **On macOS / Linux**, the second line uses a forward slash and `bin` instead of
+> `Scripts`: `venv/bin/pip install -r requirements.txt`
+
+---
+
+### Step 4 — Do a dry run first
+
+```bash
+venv\Scripts\python hira_cg.py --game-dir "D:\Steam\steamapps\common\Hira Hira Hihiru" --dry-run
+```
+
+Replace the path with your actual game folder. A dry run reports what *would* be
+exported and **writes nothing at all**, so it's completely safe.
+
+If the path is wrong you'll get a clear "could not locate the Unity `_Data`
+directory" error — that's the point of doing this step first.
+
+---
+
+### Step 5 — Extract for real
+
+```bash
+venv\Scripts\python hira_cg.py --game-dir "D:\Steam\steamapps\common\Hira Hira Hihiru" --profile hihiru --out-dir "./cg_out"
+```
+
+⚠️ **Close the game first.** A running game locks its data files and the tool
+won't be able to read them.
+
+On a 4 GB game this takes roughly two minutes.
+
+---
+
+### Step 6 — View the results
+
+Open the `cg_out` folder and **double-click `index.html`**. It opens in your
+browser: a browsable gallery with search, grouping, and click-to-view.
+
+That's it. The images sit alongside it in `resources/`, `sharedassets0/`, etc.
+
+---
+
+### ⚠️ Two rules that trip people up
+
+**1. Never double-click `hira_cg.py`.** Double-clicking runs it in a console
+window that closes the instant it finishes — so if it errors, you see nothing
+and it looks like "nothing happened". Always type the commands in a terminal
+where you can read the output.
+
+**2. Always type commands inside the project folder.** That's what the `cd` in
+Step 2 was for. Commands like `pip install -r requirements.txt` fail with
+"can't open file" if you're in the wrong directory.
+
+---
+
+## Common errors
+
+| What you see | What it means | How to fix |
+|---|---|---|
+| `'python' is not recognized` | Python isn't installed, or isn't on PATH | Redo Step 0 |
+| `No module named 'PIL'` | Dependencies not installed | Redo Step 3 |
+| `No module named 'UnityPy'` | Dependencies not installed | Redo Step 3 |
+| `can't open file 'requirements.txt'` | You're in the wrong folder | Redo Step 2 |
+| `the following arguments are required: --game-dir` | You forgot the game path | Add `--game-dir "path\to\game"` |
+| `Could not locate the Unity *_Data directory` | Game path is wrong | Try `--data-dir "...\_Data"` |
+| `Permission denied` / file in use | The game is still running | Quit it, or end `GameName.exe` in Task Manager |
+| A window flashes and disappears | You double-clicked the .py | Use a terminal instead |
+
+---
+
+## Options reference
 
 | Flag | Description |
 |---|---|
@@ -84,6 +211,19 @@ Full options:
 | `--dry-run` | Report only, write nothing |
 | `--quiet` | Reduce console output |
 
+More examples:
+
+```bash
+# Textures only, no video
+venv\Scripts\python hira_cg.py --game-dir "D:\...\Game" --no-video
+
+# Skip auto-detection and give the _Data directory directly
+venv\Scripts\python hira_cg.py --data-dir "D:\...\Game_Data" --out-dir ./cg_out
+
+# PNGs without the gallery page
+venv\Scripts\python hira_cg.py --game-dir "D:\...\Game" --no-gallery
+```
+
 ### Naming profiles
 
 Naming conventions differ between games, so `--profile` decides how filenames
@@ -94,6 +234,8 @@ are bucketed into gallery groups:
 - `hihiru`: tuned for *Hira Hira Hihiru*
 
 To support another game, add a `Profile` in `unitypack/naming.py`.
+
+---
 
 ## Output layout
 
@@ -112,6 +254,8 @@ cg_out/
 When the game stores the same image at several sizes (common for CG gallery
 thumbnails), the smaller copies automatically get a `_thumb` suffix.
 
+---
+
 ## "A few images didn't export"
 
 If the log lists a handful of failures, check their dimensions first:
@@ -121,6 +265,8 @@ If the log lists a handful of failures, check their dimensions first:
   no pixels on disk to recover. **This is not an extraction failure.**
 - Anything else is a genuine failure, with the concrete exception message
   written to the "失败明细" section of `export.log`.
+
+---
 
 ## Legal scope
 
@@ -136,6 +282,8 @@ This project distributes **tool code only** and contains no game assets.
 
 Comparable open-source tools: [AssetStudio](https://github.com/AssetRipper/AssetStudio)
 and [AssetRipper](https://github.com/AssetRipper/AssetRipper).
+
+---
 
 ## How it works
 
@@ -154,6 +302,8 @@ data" split:
 3. Locate each `VideoClip`'s byte range, trying three strategies in order:
    the offset/size from the parser, then a hand-parse of the raw VideoClip
    bytes, then a scan for the MP4 `ftyp` box signature
+
+---
 
 ## License
 
